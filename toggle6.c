@@ -38,20 +38,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "toggle6.h"
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_gpio.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/rom_map.h"
-#include "driverlib/gpio.h"
+#include "../../../../inc/hw_types.h"
+#include "../../../../inc/hw_memmap.h"
+#include "../../../../inc/hw_gpio.h"
+#include "../../../../driverlib/sysctl.h"
+#include "../../../../driverlib/pin_map.h"
+#include "../../../../driverlib/rom_map.h"
+#include "../../../../driverlib/gpio.h"
 #include "inc/tm4c123gh6pm.h"	// Manually added by the programmer
 
 
 //*****************************************************************************
 
-#define 	RED_MASK 		0x02	// PF1, 2^1 = 2
-#define   BLUE_MASK   0x04	// PF2, 2^2 = 4 
+#define 	RED_MASK 		0x02	// PF1, 2^1 = 2 
 #define   GREEN_MASK  0x08	// PF3, 2^3 = 8
 
 #define		SW2					0x01 // PF0, 2^0 = 1
@@ -64,12 +63,7 @@ PortFunctionInit(void)
     // Enable Peripheral Clocks 
     //
     MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-
-    //
-    // Enable pin PF2 for GPIOOutput
-    //
-    MAP_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
-
+	
     //
     // Enable pin PF0 for GPIOInput
     //
@@ -116,8 +110,9 @@ PortFunctionInit(void)
 int main(void)
 {
     uint8_t toggle;
-	
-		int clockDelay = (SysCtlClockGet() /2/3);
+
+		int clockDelay = ((SysCtlClockGet() /2 )/3);
+		
 	
 		//initialize the GPIO ports	
 		PortFunctionInit();
@@ -132,7 +127,6 @@ int main(void)
 			if(GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0)==0x00)
 			{
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x00);
 			}
 			
@@ -140,20 +134,18 @@ int main(void)
 			else if((GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_4)==0x00) && (GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)==0x00))
 			{
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
-				
+				SysCtlDelay(clockDelay);
 				toggle ^= GREEN_MASK;
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, toggle);
-				SysCtlDelay(clockDelay);
+				
 			} 
 			else // SW1 is NOT pressed, red LED toggles for half second, blue and green LEDs are OFF.
 			{
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x00);
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
-				
+				SysCtlDelay(clockDelay);
 				toggle ^= RED_MASK;
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, toggle);
-				SysCtlDelay(clockDelay);
+				
 			}
 
     }
